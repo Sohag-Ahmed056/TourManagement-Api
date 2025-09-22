@@ -9,6 +9,12 @@ import AppError from "../../errorHelpers/AppError"
 const credentialsLogin = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const loginInfo = await AuthServices.credentialsLogin(req.body)
 
+    res.cookie("refreshToken", loginInfo.refreshToken,{
+        httpOnly:true,
+        secure:false,
+        
+    })
+
     sendResponse(res, {
         success: true,
         statusCode: httpStatus.OK,
