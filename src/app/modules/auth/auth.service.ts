@@ -5,7 +5,7 @@ import AppError from "../../errorHelpers/AppError";
 import { generateToken, verifyToken } from "../../utils/jwt";
 import { IsActive, IUser } from "../user/user.interface";
 import { User } from "../user/user.model";
-import { CreateUserToken } from "../../utils/userToken";
+import { createNewAccessTokenWithRefreshToken, CreateUserToken } from "../../utils/userToken";
 import { JwtPayload } from "jsonwebtoken";
 
 
@@ -47,32 +47,37 @@ const credentialsLogin = async (payload: Partial<IUser>) => {
 
 
 const giveAccessToken = async (refreshToken: string) => {
+
+
+
+
+    const newAccessToken = await createNewAccessTokenWithRefreshToken(refreshToken)
     //verify refresh token
-    const verfiedRefreshToken = verifyToken(refreshToken, envVars.JWT_REFRESH_SECRET)
+    // const verfiedRefreshToken = verifyToken(refreshToken, envVars.JWT_REFRESH_SECRET)
 
-    const isUserExist = await User.findOne({ email: verfiedRefreshToken.email}) 
-    if (!isUserExist) {
-        throw new AppError(httpStatus.BAD_REQUEST, "Email does not exist")
-    }
+    // const isUserExist = await User.findOne({ email: verfiedRefreshToken.email}) 
+    // if (!isUserExist) {
+    //     throw new AppError(httpStatus.BAD_REQUEST, "Email does not exist")
+    // }
 
-    if(isUserExist.isActive === IsActive.BLOCKED){
-        throw new AppError(httpStatus.FORBIDDEN, "Your account has been blocked. Please contact support.")
-    }
+    // if(isUserExist.isActive === IsActive.BLOCKED){
+    //     throw new AppError(httpStatus.FORBIDDEN, "Your account has been blocked. Please contact support.")
+    // }
 
    
-    const jwtPayload = {
-        userId: isUserExist._id,
-        email: isUserExist.email,
-        role: isUserExist.role
-    }
-    const accessToken = generateToken(jwtPayload, envVars.JWT_ACCESS_SECRET, envVars.JWT_ACCESS_EXPIRES)
+    // const jwtPayload = {
+    //     userId: isUserExist._id,
+    //     email: isUserExist.email,
+    //     role: isUserExist.role
+    // }
+    // const accessToken = generateToken(jwtPayload, envVars.JWT_ACCESS_SECRET, envVars.JWT_ACCESS_EXPIRES)
     
 
 
 
 
     return {
-        accessToken
+       accessToken: newAccessToken,
     }
 
 }

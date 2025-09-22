@@ -5,15 +5,15 @@ import { catchAsync } from "../../utils/catchAsync"
 import { sendResponse } from "../../utils/sendResponse"
 import { AuthServices } from "./auth.service"
 import AppError from "../../errorHelpers/AppError"
+import { setAuthcookie } from "../../utils/setCookie"
+import { set } from "mongoose"
 
 const credentialsLogin = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const loginInfo = await AuthServices.credentialsLogin(req.body)
 
-    res.cookie("refreshToken", loginInfo.refreshToken,{
-        httpOnly:true,
-        secure:false,
-        
-    })
+            setAuthcookie(res,loginInfo)
+   
+
 
     sendResponse(res, {
         success: true,
@@ -34,6 +34,8 @@ const getAccessToken = catchAsync(async (req: Request, res: Response, next: Next
     }
     const TokenInfo = await AuthServices.getAccessToken(refreshToken)
 
+    setAuthcookie(res,TokenInfo.accessToken)
+
     sendResponse(res, {
         success: true,
         statusCode: httpStatus.OK,
@@ -43,7 +45,25 @@ const getAccessToken = catchAsync(async (req: Request, res: Response, next: Next
 })
 
 
+const logout = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+
+    res.clearCookie("accessToken",{
+        httpOnly:true,
+        secure:false,
+        sameSite:"lax"
+    })
+
+    res.clearCookie("refreshToken",{
+        httpOnly:true,
+        secure:false,
+        sameSite:"lax"
+    })
+
+}
+)
 export const AuthControllers = {
     credentialsLogin,
-    getAccessToken
+    getAccessToken,
+    logout
 }
