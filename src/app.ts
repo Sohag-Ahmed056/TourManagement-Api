@@ -6,6 +6,9 @@ import { router } from "./app/routes";
 import cookieParser from "cookie-parser";
 import passport from "passport";
 import session from "express-session";
+import { config } from "dotenv";
+
+import "./app/config/passport"
 
 
 
